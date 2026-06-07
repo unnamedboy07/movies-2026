@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Epic Movie Tracker 100</title>
+
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-hover: #0284c7;
+            --danger: #ef4444;
+            --success: #10b981;
+            --progress: #f59e0b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        h1,
+        h2,
+        .target-header {
+            text-align: center;
+            color: var(--accent);
+        }
+
+        .target-header {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+
+        .dashboard {
+            display: flex;
+            justify-content: space-between;
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stat-box {
+            text-align: center;
+            flex: 1;
+            min-width: 130px;
+            padding: 12px;
+            background: #0f172a;
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-top: 5px;
+        }
+
+        .stat-value.completed {
+            color: var(--progress);
+        }
+
+        .expense-title {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #f59e0b;
+        }
+
+        .form-container {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--text-muted);
+            color: var(--text-main);
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        input::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
+
+        button {
+            grid-column: 1 / -1;
+            padding: 12px;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+        }
+		
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+
+        th {
+            background-color: #0f172a;
+            color: var(--accent);
+        }
+
+        .btn-remove {
+            background-color: var(--danger);
+            padding: 8px 12px;
+            width: auto;
+            font-size: 0.9rem;
+        }
+
+        .btn-remove:hover {
+            background-color: #b91c1c;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .badge-new {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .badge-rewatch {
+            background-color: #f59e0b;
+            color: white;
+        }
+
+        .badge-rerelease {
+            background-color: #8b5cf6;
+            color: white;
+        }
+
+        .expense-cell {
+            color: #facc15;
+            font-weight: bold;
+        }
+
+        @media(max-width: 900px) {
+
+            table {
+                font-size: 12px;
+            }
+
+            th,
+            td {
+                padding: 8px;
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🎬 Epic Movie Tracker 100</h1>
+
+    <div class="target-header">
+        Target: 100 New Releases and Re-Releases (April 2026 - April 2027)
+    </div>
+
+    <!-- MOVIE DASHBOARD -->
+
+    <div class="dashboard">
+
+        <div class="stat-box">
+            <div>Target Completed</div>
+            <div class="stat-value completed" id="count-completed">0</div>
+        </div>
+
+        <div class="stat-box">
+            <div>New Movies</div>
+            <div class="stat-value" id="count-new">0</div>
+        </div>
+
+        <div class="stat-box">
+            <div>Re-released</div>
+            <div class="stat-value" id="count-rerelease">0</div>
+        </div>
+
+        <div class="stat-box">
+            <div>Rewatched</div>
+            <div class="stat-value" id="count-rewatch">0</div>
+        </div>
+
+        <div class="stat-box">
+            <div>Total Movies</div>
+            <div class="stat-value" id="count-total">0</div>
+        </div>
+
+    </div>
+
+    <!-- EXPENSE DASHBOARD -->
+
+    <h2 class="expense-title">💸 Expense Tracker</h2>
+
+    <div class="dashboard">
+
+        <div class="stat-box">
+            <div>Total Expenses</div>
+            <div class="stat-value" id="expense-total">₹0</div>
+        </div>
+
+        <div class="stat-box">
+            <div>Average / Movie</div>
+            <div class="stat-value" id="expense-average">₹0</div>
+        </div>
+
+    </div>
+
+    <!-- FORM -->
+
+    <div class="form-container">
+
+        <h2>Add a Movie</h2>
+
+        <form id="movieForm">
+
+            <input type="text" id="title" placeholder="Movie Title" required>
+
+            <input type="date" id="date" required>
+
+            <select id="category" required>
+                <option value="New">New</option>
+                <option value="Rewatch">Rewatch</option>
+                <option value="Re-release">Re-release</option>
+            </select>
+
+            <input
+                type="text"
+                id="theatre"
+                list="theatre-options"
+                placeholder="Double-click or type theatre..."
+                autocomplete="off"
+                required
+            >
+
+            <datalist id="theatre-options"></datalist>
+
+            <input type="time" id="showtime">
+
+            <input type="text" id="notes" placeholder="Notes / Thoughts">
+
+            <input type="number" id="ticket" placeholder="Total Expense">
+
+            <button type="submit">Add to Tracker</button>
+
+        </form>
+
+    </div>
+
+    <!-- TABLE -->
+	<button id="exportCSV">📥 Export to CSV</button>
+    <table>
+
+        <thead>
+
+        <tr>
+            <th>No.</th>
+            <th>Movie</th>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Theatre</th>
+            <th>Showtime</th>
+            <th>Notes</th>
+            <th>Expense</th>
+            <th>Action</th>
+        </tr>
+
+        </thead>
+
+        <tbody id="movieTableBody"></tbody>
+
+    </table>
+
+</div>
+
+<script>
+
+    const initialData = [
+    {
+        id: 1,
+        title: "DACOIT (TELUGU) (UA 13+)",
+        date: "2026-04-14",
+        category: "New",
+        theatre: "M5 Ecity Mall",
+        showtime: "12:55",
+        notes: "",
+        ticket: 240
+    },
+    {
+        id: 2,
+        title: "Darling (2010)",
+        date: "2026-04-23",
+        category: "Re-release",
+        theatre: "Brundha RGB Laser 4K",
+        showtime: "10:15",
+        notes: "",
+        ticket: 224
+    },
+    {
+        id: 3,
+        title: "LEE CRONINS THE MUMMY",
+        date: "2026-04-24",
+        category: "New",
+        theatre: "M5 Ecity Mall",
+        showtime: "12:40",
+        notes: "",
+        ticket: 250
+    },
+    {
+        id: 4,
+        title: "KD",
+        date: "2026-05-01",
+        category: "New",
+        theatre: "Manasa RGB Laser ATMOS",
+        showtime: "10:00",
+        notes: "",
+        ticket: 241
+    },
+    {
+        id: 5,
+        title: "Kara",
+        date: "2026-05-01",
+        category: "New",
+        theatre: "Manasa RGB Laser ATMOS",
+        showtime: "13:00",
+        notes: "",
+        ticket: 321
+    },
+    {
+        id: 6,
+        title: "KD",
+        date: "2026-05-06",
+        category: "Rewatch",
+        theatre: "Manasa RGB Laser ATMOS",
+        showtime: "13:15",
+        notes: "",
+        ticket: 224
+    },
+    {
+        id: 7,
+        title: "Krishnavataram Part 1",
+        date: "2026-05-09",
+        category: "New",
+        theatre: "Cinepolis Lulu Mall",
+        showtime: "10:00",
+        notes: "",
+        ticket: 238
+    },
+    {
+        id: 8,
+        title: "KRISHNAVATARAM (HINDI)",
+        date: "2026-05-13",
+        category: "Rewatch",
+        theatre: "PVR Superplex Forum Mall",
+        showtime: "13:10",
+        notes: "",
+        ticket: 190
+    },
+    {
+        id: 9,
+        title: "Karuppu",
+        date: "2026-05-18",
+        category: "New",
+        theatre: "Sandhya Cinema",
+        showtime: "13:00",
+        notes: "",
+        ticket: 224
+    },
+    {
+        id: 10,
+        title: "AAKHRI SAWAL (HINDI)",
+        date: "2026-05-20",
+        category: "New",
+        theatre: "PVR Cinemas, Global Mall",
+        showtime: "13:30",
+        notes: "",
+        ticket: 160
+    },
+    {
+        id: 11,
+        title: "DRISHYAM-3 (MALAYALAM)",
+        date: "2026-05-21",
+        category: "New",
+        theatre: "PVR Superplex Forum Mall (Kanakapura Road)",
+        showtime: "08:00",
+        notes: "",
+        ticket: 316
+    }
+];
+
+    const baseTheatres = [
+        "PVR Vega City",
+        "M5 Ecity Mall",
+        "Brundha RGB Laser 4K",
+        "Manasa RGB Laser ATMOS",
+        "Cinepolis Lulu Mall",
+        "PVR Superplex Forum Mall",
+        "Sandhya Cinema",
+        "INOX Nexus Koramangala",
+        "PVR Nexus Koramangala",
+        "Gopalan Cinemas Innovation Mall",
+        "Cinepolis Meenakshi Mall",
+        "AMB Cinemas Kapali"
+    ];
+
+    let movies = JSON.parse(localStorage.getItem('moviesTracker'));
+
+    if (!movies || movies.length === 0) {
+        movies = initialData;
+        saveData();
+    }
+
+    function saveData() {
+        localStorage.setItem('moviesTracker', JSON.stringify(movies));
+    }
+
+    function calculateExpense(movie) {
+        return Number(movie.ticket || 0);
+    }
+
+    function updateExpenseDashboard() {
+
+        let totalExpense = 0;
+
+        movies.forEach(movie => {
+            totalExpense += Number(movie.ticket || 0);
+        });
+
+        document.getElementById('expense-total').innerText = `₹${totalExpense}`;
+
+        const avg = movies.length > 0
+            ? Math.round(totalExpense / movies.length)
+            : 0;
+
+        document.getElementById('expense-average').innerText = `₹${avg}`;
+    }
+
+    function updateTheatreAutocomplete() {
+
+        const datalist = document.getElementById('theatre-options');
+
+        datalist.innerHTML = "";
+
+        let uniqueTheatres = new Set(baseTheatres);
+
+        movies.forEach(m => {
+
+            if (m.theatre && m.theatre.trim() !== "") {
+                uniqueTheatres.add(m.theatre.trim());
+            }
+
+        });
+
+        Array.from(uniqueTheatres)
+            .sort()
+            .forEach(theatre => {
+
+                let option = document.createElement('option');
+
+                option.value = theatre;
+
+                datalist.appendChild(option);
+
+            });
+
+    }
+
+    function updateDashboard() {
+
+        let newCount = 0;
+        let rewatchCount = 0;
+        let rereleaseCount = 0;
+
+        movies.forEach(movie => {
+
+            if (movie.category === "New") {
+                newCount++;
+            }
+
+            else if (movie.category === "Rewatch") {
+                rewatchCount++;
+            }
+
+            else if (movie.category === "Re-release") {
+                rereleaseCount++;
+            }
+
+        });
+
+        const targetCompleted = newCount + rereleaseCount;
+
+        document.getElementById('count-new').innerText = newCount;
+        document.getElementById('count-rewatch').innerText = rewatchCount;
+        document.getElementById('count-rerelease').innerText = rereleaseCount;
+        document.getElementById('count-completed').innerText = targetCompleted;
+        document.getElementById('count-total').innerText = movies.length;
+
+    }
+
+    function formatTime(timeStr) {
+
+        if (!timeStr) return "";
+
+        let parts = timeStr.split(':');
+
+        let hours = parseInt(parts[0]);
+
+        let minutes = parts[1];
+
+        let ampm = hours >= 12 ? 'PM' : 'AM';
+
+        hours = hours % 12 || 12;
+
+        return `${hours}:${minutes} ${ampm}`;
+    }
+
+    function renderTable() {
+
+        const tbody = document.getElementById('movieTableBody');
+
+        tbody.innerHTML = "";
+
+        movies.forEach((movie, index) => {
+
+            const tr = document.createElement('tr');
+
+            let badgeClass = '';
+
+            if (movie.category === 'New') {
+                badgeClass = 'badge-new';
+            }
+
+            else if (movie.category === 'Rewatch') {
+                badgeClass = 'badge-rewatch';
+            }
+
+            else if (movie.category === 'Re-release') {
+                badgeClass = 'badge-rerelease';
+            }
+
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+
+                <td><strong>${movie.title}</strong></td>
+
+                <td>${movie.date}</td>
+
+                <td>
+                    <span class="badge ${badgeClass}">
+                        ${movie.category}
+                    </span>
+                </td>
+
+                <td>${movie.theatre}</td>
+
+                <td>${formatTime(movie.showtime)}</td>
+
+                <td>${movie.notes || ''}</td>
+
+                <td class="expense-cell">
+                    ₹${movie.ticket || 0}
+                </td>
+
+                <td>
+                    <button
+                        class="btn-remove"
+                        onclick="removeMovie(${movie.id})"
+                    >
+                        Remove
+                    </button>
+                </td>
+            `;
+
+            tbody.appendChild(tr);
+
+        });
+
+        updateDashboard();
+        updateExpenseDashboard();
+        updateTheatreAutocomplete();
+
+    }
+
+    document
+        .getElementById('movieForm')
+        .addEventListener('submit', function(e) {
+
+            e.preventDefault();
+
+            const newMovie = {
+
+                id: Date.now(),
+
+                title: document.getElementById('title').value,
+
+                date: document.getElementById('date').value,
+
+                category: document.getElementById('category').value,
+
+                theatre: document.getElementById('theatre').value,
+
+                showtime: document.getElementById('showtime').value,
+
+                notes: document.getElementById('notes').value,
+
+                ticket: document.getElementById('ticket').value
+
+            };
+
+            movies.push(newMovie);
+
+            saveData();
+
+            renderTable();
+
+            this.reset();
+
+        });
+
+    window.removeMovie = function(id) {
+
+        movies = movies.filter(movie => movie.id !== id);
+
+        saveData();
+
+        renderTable();
+
+    };
+	document.getElementById('exportCSV').addEventListener('click', function () {
+
+    let newCount = 0;
+    let rewatchCount = 0;
+    let rereleaseCount = 0;
+    let totalExpense = 0;
+
+    movies.forEach(movie => {
+
+        if (movie.category === "New")
+            newCount++;
+
+        else if (movie.category === "Rewatch")
+            rewatchCount++;
+
+        else if (movie.category === "Re-release")
+            rereleaseCount++;
+
+        totalExpense += Number(movie.ticket || 0);
+
+    });
+
+    const goalCompleted = newCount + rereleaseCount;
+
+    const avgExpense =
+        movies.length > 0
+        ? Math.round(totalExpense / movies.length)
+        : 0;
+
+    let csv = "";
+
+    csv += "EPIC MOVIE TRACKER REPORT\n";
+    csv += "\n";
+
+    csv += `Export Date,${new Date().toLocaleString()}\n`;
+    csv += `Total Movies,${movies.length}\n`;
+    csv += `Goal Completed,${goalCompleted}\n`;
+    csv += `New Movies,${newCount}\n`;
+    csv += `Re-releases,${rereleaseCount}\n`;
+    csv += `Rewatches,${rewatchCount}\n`;
+    csv += `Total Expense,${totalExpense}\n`;
+    csv += `Average Expense,${avgExpense}\n`;
+
+    csv += "\n";
+    csv += "MOVIE DATA\n";
+
+    csv += [
+        "No",
+        "Movie",
+        "Date",
+        "Category",
+        "Theatre",
+        "Showtime",
+        "Notes",
+        "Expense"
+    ].join(",") + "\n";
+
+    movies.forEach((movie, index) => {
+
+        csv += [
+            index + 1,
+            `"${movie.title}"`,
+            movie.date,
+            movie.category,
+            `"${movie.theatre}"`,
+            movie.showtime,
+            `"${movie.notes || ''}"`,
+            movie.ticket || 0
+        ].join(",") + "\n";
+
+    });
+
+    const blob = new Blob(
+        [csv],
+        { type: "text/csv;charset=utf-8;" }
+    );
+
+    const link = document.createElement("a");
+
+    link.href = URL.createObjectURL(blob);
+
+    link.download =
+        `epic_movie_tracker_${new Date()
+        .toISOString()
+        .split('T')[0]}.csv`;
+
+    link.click();
+
+});
+    renderTable();
+
+</script>
+
+</body>
+</html>
