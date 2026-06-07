@@ -302,6 +302,12 @@
         </form>
 
     </div>
+    
+    <div id="loginBox" style="text-align:center;margin-bottom:20px;">
+    <input type="password" id="adminPassword" placeholder="Admin Password">
+    <button onclick="login()">Login</button>
+    <button onclick="logout()">Logout</button>
+</div>
 
     <!-- TABLE -->
 	<button id="exportCSV">📥 Export to CSV</button>
@@ -570,6 +576,60 @@
         return `${hours}:${minutes} ${ampm}`;
     }
 
+	let isAdmin = localStorage.getItem("isAdmin") === "true";
+
+function login() {
+
+    const password =
+        document.getElementById("adminPassword").value;
+
+    if(password === "ub7") {
+
+        isAdmin = true;
+
+        localStorage.setItem("isAdmin", "true");
+
+        updatePermissions();
+
+        alert("Logged in successfully");
+
+    } else {
+
+        alert("Wrong password");
+
+    }
+
+}
+
+function logout() {
+
+    isAdmin = false;
+
+    localStorage.setItem("isAdmin", "false");
+
+    updatePermissions();
+
+}
+
+function updatePermissions() {
+
+    const form =
+        document.querySelector(".form-container");
+
+    if(form)
+        form.style.display =
+            isAdmin ? "block" : "none";
+
+    document.querySelectorAll(".btn-remove")
+        .forEach(btn => {
+
+            btn.style.display =
+                isAdmin ? "inline-block" : "none";
+
+        });
+
+}
+
     function renderTable() {
 
         const tbody = document.getElementById('movieTableBody');
@@ -636,7 +696,7 @@
         updateTheatreAutocomplete();
 
     }
-
+	updatePermissions();
     document
         .getElementById('movieForm')
         .addEventListener('submit', function(e) {
